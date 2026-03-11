@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perkhidmatan Awam Malaysia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Bebas+Neue&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --gov-blue: #0f172a;
+            --action-blue: #2563eb;
+            --emergency-red: #dc2626;
+        }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #e2e8f0; 
+            margin: 0; 
+            overflow: hidden; 
+        }
+        
+        /* --- SLIDE SYSTEM --- */
+        .slide-container {
+            width: 2800vw; 
+            height: 100vh;
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            background: white;
+            padding: 40px 100px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .slide::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 30%; height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(37, 99, 235, 0.05) 100%);
+            clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+            z-index: 0;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .title { font-family: 'Bebas Neue', cursive; font-size: 6rem; color: var(--gov-blue); line-height: 1; margin-bottom: 1.5rem; text-align: center; }
+        .subtitle { font-size: 2.8rem; color: var(--action-blue); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; text-align: center; }
+        .text-large { font-size: 2.4rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: center; }
+        .eng-sub { font-size: 1.5rem; color: #64748b; font-style: italic; display: block; margin-top: 8px; text-align: center; }
+
+        /* --- PERFECT CENTERING (Dead Center) --- */
+        .centered-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 1500px;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .info-card { 
+            background: #fff; border: 4px solid #f1f5f9; border-radius: 35px; padding: 40px 60px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.06); margin-bottom: 2rem; 
+            display: flex; align-items: center; justify-content: center; gap: 50px;
+            z-index: 1; width: 100%; max-width: 1400px;
+        }
+
+        .slide-img {
+            width: 500px; height: 350px; object-fit: cover; border-radius: 25px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 8px solid white;
+            background: #f1f5f9;
+        }
+        
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; z-index: 1; width: 100%; max-width: 1400px; }
+        .vocab-box { background: #f8fafc; padding: 30px; border-radius: 25px; font-size: 2rem; border-left: 15px solid var(--action-blue); color: black; font-weight: 800; text-align: center; }
+
+        /* --- NAVIGATION --- */
+        .btn-nav { 
+            background: var(--gov-blue); color: white; width: 55px; height: 55px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            transition: 0.3s; z-index: 20; border: none; cursor: pointer;
+        }
+        .btn-nav:hover { transform: scale(1.1); background: var(--action-blue); }
+        .btn-nav svg { width: 30px; height: 30px; }
+
+        .nav-bar {
+            position: absolute; bottom: 40px; left: 0; right: 0; padding: 0 100px;
+            display: flex; justify-content: space-between; align-items: center; width: 100%; z-index: 10;
+        }
+
+        .choice-card { width: 100%; padding: 25px; background: #f1f5f9; border: 5px solid #e2e8f0; border-radius: 25px; text-align: center; font-weight: 800; font-size: 2rem; margin-bottom: 20px; color: #1e293b; transition: 0.2s; cursor: pointer; }
+        .correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
+        .wrong { animation: shake 0.4s; background: #fee2e2 !important; border-color: #ef4444 !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* --- APP UI --- */
+        #activity-layer { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .phone-frame { width: 100%; max-width: 550px; height: 100%; max-height: 900px; background: #fff; border-radius: 60px; overflow: hidden; display: flex; flex-direction: column; border: 15px solid #334155; position: relative; }
+        .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 35px; background: #334155; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 110; }
+        #reset-modal { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 500; align-items: center; justify-content: center; padding: 40px; }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container" id="slideContainer">
+        
+        <!-- S0: Tajuk -->
+        <div class="slide" id="s0">
+            <div class="centered-wrapper">
+                <div class="w-32 h-3 bg-blue-600 mb-8 mx-auto"></div>
+                <h1 class="title">Perkhidmatan<br>Awam Malaysia</h1>
+                <p class="subtitle">Edisi IGCSE Malay</p>
+                <div class="info-card border-none shadow-none bg-transparent">
+                   <img src="skyline-kl.jpg" class="slide-img" alt="Malaysia Skyline" onerror="this.parentElement.innerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[skyline-kl.jpg]</div>'">
+                </div>
+                <p class="text-large">Bagaimana kerajaan membantu rakyat setiap hari?<br><span class="eng-sub">"How does the government help the people every day?"</span></p>
+            </div>
+            <div class="nav-bar">
+                <p class="text-gray-400 font-mono text-xl uppercase tracking-widest">Year 7-9 FL / Foreign Malay</p>
+                <button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- S1: Pengenalan -->
+        <div class="slide" id="s1">
+            <div class="centered-wrapper">
+                <h2 class="title text-5xl">Apa itu Perkhidmatan Awam?</h2>
+                <div class="info-card">
+                    <img src="kaunter-khidmat.jpg" class="w-72 h-72 object-cover rounded-3xl" alt="Public Service" onerror="this.outerHTML='<div class=\'w-72 h-72 bg-slate-100 rounded-3xl flex items-center justify-center italic text-slate-400\'>[kaunter-khidmat.jpg]</div>'">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 mb-4 mx-auto"><i data-lucide="building-2" class="w-10 h-10"></i></div>
+                        <p class="text-large">Segala kemudahan yang disediakan oleh <b>kerajaan</b> untuk <b>rakyat</b>.<br><span class="eng-sub">All facilities provided by the government for the people.</span></p>
+                    </div>
+                </div>
+                <div class="vocab-grid">
+                    <div class="vocab-box"><b>Kerajaan</b><br><span class="eng-sub">Government</span></div>
+                    <div class="vocab-box"><b>Rakyat</b><br><span class="eng-sub">Citizens / People</span></div>
+                    <div class="vocab-box"><b>Percuma</b><br><span class="eng-sub">Free of charge</span></div>
+                    <div class="vocab-box"><b>Masyarakat</b><br><span class="eng-sub">Community / Society</span></div>
+                </div>
+            </div>
+            <div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div>
+        </div>
+
+        <!-- DEPARTMENTS -->
+        <div class="slide" id="s2"><div class="centered-wrapper"><h2 class="title text-5xl text-blue-800">1. Jabatan Pendaftaran (JPN)</h2><div class="info-card"><img src="mykad-malaysia.jpg" class="slide-img" alt="MyKad" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[mykad-malaysia.jpg]</div>'"><p class="text-large">Urusan: <b>Kad Pengenalan (IC)</b> & <b>Sijil Lahir</b>.<br><span class="eng-sub">Purpose: Identity Card & Birth Certificate.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Memohon</b><br><span class="eng-sub">To apply</span></div><div class="vocab-box"><b>Dokumen</b><br><span class="eng-sub">Document</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s3"><div class="centered-wrapper"><h2 class="title text-5xl text-blue-900">2. Jabatan Imigresen</h2><div class="info-card"><img src="pasport-malaysia.jpg" class="slide-img" alt="Passport" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[pasport-malaysia.jpg]</div>'"><p class="text-large">Urusan: <b>Memohon Pasport</b>.<br><span class="eng-sub">Purpose: To apply for a passport.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Luar Negara</b><br><span class="eng-sub">Overseas / Abroad</span></div><div class="vocab-box"><b>Visa</b><br><span class="eng-sub">Visa Entry</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s4"><div class="centered-wrapper"><h2 class="title text-5xl text-slate-800">3. Jabatan Pengangkutan (JPJ)</h2><div class="info-card"><img src="lesen-memandu.jpg" class="slide-img" alt="Driving License" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[lesen-memandu.jpg]</div>'"><p class="text-large">Urusan: <b>Lesen Memandu</b>.<br><span class="eng-sub">Purpose: Driving license.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Memandu</b><br><span class="eng-sub">To drive</span></div><div class="vocab-box"><b>Cukai Jalan</b><br><span class="eng-sub">Road tax</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s5"><div class="centered-wrapper"><h2 class="title text-5xl text-orange-600">4. Pos Malaysia</h2><div class="info-card"><img src="posmen-malaysia.jpg" class="slide-img" alt="Posmen" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[posmen-malaysia.jpg]</div>'"><p class="text-large">Urusan: <b>Menghantar Surat & Bungkusan</b>.<br><span class="eng-sub">Purpose: Send letters & parcels.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Setem</b><br><span class="eng-sub">Stamp</span></div><div class="vocab-box"><b>Alamat</b><br><span class="eng-sub">Address</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s6"><div class="centered-wrapper"><h2 class="title text-5xl text-blue-800">5. Polis (PDRM)</h2><div class="info-card"><img src="kereta-polis.jpg" class="slide-img" alt="Police" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[kereta-polis.jpg]</div>'"><p class="text-large">Urusan: <b>Keselamatan & Laporan</b>.<br><span class="eng-sub">Purpose: Safety & Police Reports.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Menangkap</b><br><span class="eng-sub">To catch / arrest</span></div><div class="vocab-box"><b>Pencuri</b><br><span class="eng-sub">Thief</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s7"><div class="centered-wrapper"><h2 class="title text-5xl text-red-600">6. Bomba</h2><div class="info-card"><img src="jentera-bomba.jpg" class="slide-img" alt="Fireman" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[jentera-bomba.jpg]</div>'"><p class="text-large">Urusan: <b>Kecemasan & Kebakaran</b>.<br><span class="eng-sub">Purpose: Emergency & Fire.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Memadam Api</b><br><span class="eng-sub">Extinguish fire</span></div><div class="vocab-box"><b>Menyelamat</b><br><span class="eng-sub">To rescue</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s8"><div class="centered-wrapper"><h2 class="title text-5xl text-emerald-700">7. Hospital Kerajaan</h2><div class="info-card"><img src="doktor-hospital.jpg" class="slide-img" alt="Hospital" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[doktor-hospital.jpg]</div>'"><p class="text-large">Urusan: <b>Rawatan & Kesihatan</b>.<br><span class="eng-sub">Purpose: Treatment & Health.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Merawat</b><br><span class="eng-sub">To treat (medically)</span></div><div class="vocab-box"><b>Ambulans</b><br><span class="eng-sub">Ambulance</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s9"><div class="centered-wrapper"><h2 class="title text-5xl text-purple-700">8. Perpustakaan Awam</h2><div class="info-card"><img src="perpustakaan-negara.jpg" class="slide-img" alt="Library" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[perpustakaan-negara.jpg]</div>'"><p class="text-large">Urusan: <b>Ilmu & Pinjaman Buku</b>.<br><span class="eng-sub">Purpose: Knowledge & Book borrowing.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Meminjam</b><br><span class="eng-sub">To borrow</span></div><div class="vocab-box"><b>Rujukan</b><br><span class="eng-sub">Reference</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <div class="slide" id="s10"><div class="centered-wrapper"><h2 class="title text-5xl text-cyan-700">9. Majlis Bandaraya</h2><div class="info-card"><img src="taman-bandaraya.jpg" class="slide-img" alt="City Council" onerror="this.outerHTML='<div class=\'slide-img flex items-center justify-center italic text-slate-400\'>[taman-bandaraya.jpg]</div>'"><p class="text-large">Urusan: <b>Kebersihan & Taman</b>.<br><span class="eng-sub">Purpose: Cleanliness & Parks.</span></p></div><div class="vocab-grid"><div class="vocab-box"><b>Sampah</b><br><span class="eng-sub">Trash / Rubbish</span></div><div class="vocab-box"><b>Bersih</b><br><span class="eng-sub">Clean</span></div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <!-- DRILLS Restored -->
+        <div class="slide" id="s11"><div class="centered-wrapper"><h2 class="title text-5xl">Cara Bina Ayat Mudah</h2><div class="bg-blue-900 text-white p-12 rounded-[40px] text-4xl text-center mb-10 w-full max-w-[1000px]">Subjek + Kata Kerja + Tempat</div><div class="grid grid-cols-2 gap-6 w-full max-w-[1400px]"><div class="info-card bg-slate-50 text-2xl w-full mb-0 shadow-none border-dashed"><b>Siva</b> memohon pasport di <b>Imigresen</b>.</div><div class="info-card bg-slate-50 text-2xl w-full mb-0 shadow-none border-dashed"><b>Amin</b> menghantar surat di <b>Pejabat Pos</b>.</div></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <!-- Misi 1 - 9 -->
+        <div class="slide" id="s13"><div class="centered-wrapper"><h2 class="subtitle">Misi 1</h2><div class="info-card bg-blue-50"><p class="text-3xl font-bold italic text-blue-900">"Saya bekerja di JPN. Saya membantu anda memohon Kad Pengenalan."</p></div><div class="grid grid-cols-3 gap-8 mt-10 w-full max-w-[1300px]"><button class="choice-card" onclick="checkCFU(this, false)">Polis</button><button class="choice-card" onclick="checkCFU(this, true)">Pegawai JPN</button><button class="choice-card" onclick="checkCFU(this, false)">Bomba</button></div></div><div class="nav-bar"><button onclick="prevSlide()" class="btn-nav"><i data-lucide="chevron-left"></i></button><button onclick="nextSlide()" class="btn-nav"><i data-lucide="chevron-right"></i></button></div></div>
+
+        <!-- Final slide -->
+        <div class="slide" id="s27">
+            <div class="centered-wrapper">
+                <div class="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center mb-10 shadow-2xl mx-auto"><i data-lucide="star" class="w-16 h-16 text-white"></i></div>
+                <h2 class="title text-6xl">Tahniah Ejen!</h2>
+                <p class="text-3xl font-bold text-slate-600 max-w-5xl leading-relaxed mx-auto text-center">Anda sudah bersedia untuk bertugas di kaunter UTC. Jaga kebajikan rakyat dengan baik!</p>
+                <div class="mt-16"><button onclick="startActivity()" class="bg-blue-600 text-white px-10 py-5 rounded-[30px] font-bold text-2xl shadow-xl hover:scale-110 transition-all">MULA MISI UTC →</button></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ACTIVITY LAYER -->
+    <div id="activity-layer"><div class="phone-frame"><div class="notch"></div><div id="reset-modal"><div class="bg-white p-12 rounded-[40px] w-full text-center shadow-2xl text-black"><h4 class="font-bold text-3xl mb-6">Reset Data?</h4><p class="text-slate-500 mb-8 text-xl">Masukkan kod (21).</p><input type="password" id="resetPassword" placeholder="Kod" class="w-full border-4 p-4 rounded-2xl mb-8 text-center text-4xl font-bold text-black"><div class="flex flex-col gap-3"><button onclick="confirmReset()" class="w-full bg-red-600 text-white py-6 rounded-2xl font-bold">PADAM</button><button onclick="document.getElementById('reset-modal').style.display='none'" class="w-full bg-slate-100 py-5 rounded-2xl font-bold text-black">BATAL</button></div></div></div><div class="h-full flex flex-col bg-slate-50 overflow-y-auto no-scrollbar" id="app-content"><div id="login-scr" class="flex-1 flex flex-col justify-center p-12 text-center text-black"><div class="w-32 h-32 bg-blue-600 rounded-[40px] mx-auto flex items-center justify-center mb-12 shadow-2xl"><i data-lucide="user-check" class="text-white w-16 h-16"></i></div><h2 class="text-5xl font-black mb-6">PETUGAS UTC</h2><input type="text" id="studentName" placeholder="Nama Pegawai" class="w-full border-4 p-8 rounded-3xl mb-12 text-3xl text-black"><button onclick="enterApp()" class="w-full bg-blue-600 py-8 rounded-3xl text-white font-bold text-3xl shadow-xl">LOG MASUK</button></div><div id="main-scr" class="hidden h-full flex flex-col"><header class="h-32 border-b-2 flex justify-between items-center px-10 bg-white"><div class="flex flex-col text-black"><span class="text-blue-600 text-xs font-bold">Petugas Aktif:</span><span id="op-name" class="font-black text-2xl">---</span></div><button onclick="document.getElementById('reset-modal').style.display='flex'"><i data-lucide="settings" class="w-8 h-8 text-slate-300"></i></button></header><div class="flex-1 overflow-y-auto p-8 space-y-10 pb-40 text-black" id="drill-list"></div><nav class="absolute bottom-0 w-full h-32 bg-white border-t-2 flex justify-around items-center px-10"><i data-lucide="home" class="text-blue-500 w-12 h-12 cursor-pointer" onclick="drillIdx=0; renderDrill();"></i><i data-lucide="globe" class="text-slate-300 w-12 h-12 cursor-pointer" onclick="showExplore()"></i><div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center font-black text-black" id="user-initial">?</div></nav></div><div id="explore-scr" class="hidden h-full flex flex-col bg-white"><header class="h-32 border-b-2 flex justify-between items-center px-10"><span class="font-black text-3xl text-black">LOG UTC</span><button onclick="closeExplore()" class="text-blue-600 font-bold">TUTUP</button></header><div id="explore-container" class="flex-1 overflow-y-auto p-8 space-y-8 pb-40 text-black"></div></div></div></div></div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkWzjXgmXhMXn6Xp2KH_afl8nX-0qDoH0rA0kNIB2c3RkrRVvA7YTTZMM3JyntrBomeg/exec"; 
+        let currentIndex = 0;
+        let userData = { name: '' };
+        let drillIdx = 0;
+        let activeDrills = [];
+        let autoRefresh = null;
+
+        const DRILLS = [
+            { q: "Saya mahu bercuti ke Jepun bulan depan. Di mana saya perlu buat pasport?", options: ["Pejabat Imigresen", "Pejabat Pos", "Hospital"], ans: "Pejabat Imigresen", filename: "drill-pasport.jpg" },
+            { q: "Abang saya sudah 17 tahun dan mahu memandu kereta. Dia perlu memohon _______ .", options: ["Pasport", "Lesen Memandu", "Surat Beranak"], ans: "Lesen Memandu", filename: "drill-lesen.jpg" },
+            { q: "Ibu mahu menghantar bungkusan ke London. Ke mana ibu perlu pergi?", options: ["Balai Polis", "Pejabat Pos", "Klinik"], ans: "Pejabat Pos", filename: "drill-pos.jpg" },
+            { q: "Saya sudah berumur 12 tahun. Saya perlu ke JPN untuk memohon _______ .", options: ["MyKad", "Pasport", "Lesen"], ans: "MyKad", filename: "drill-mykad.jpg" }
+        ];
+
+        const WRITING_TASK = { q: "MISI PETUGAS: Bina 1 ayat mudah untuk warga emas yang mahu buat pasport.", type: "writing", filename: "pegawai-warga-emas.jpg" };
+
+        function moveSlide(n) { currentIndex = n; const container = document.getElementById('slideContainer'); if (container) container.style.transform = `translateX(-${currentIndex * 100}vw)`; if (typeof lucide !== 'undefined') lucide.createIcons(); }
+        function nextSlide() { if(currentIndex < 27) moveSlide(currentIndex + 1); }
+        function prevSlide() { if(currentIndex > 0) moveSlide(currentIndex - 1); }
+        function startActivity() { document.getElementById('activity-layer').style.display = 'flex'; document.body.style.overflow = 'hidden'; if (typeof lucide !== 'undefined') lucide.createIcons(); }
+        function enterApp() { const n = document.getElementById('studentName').value.trim(); if(!n) return; userData.name = n; document.getElementById('op-name').innerText = n; document.getElementById('user-initial').innerText = n[0].toUpperCase(); document.getElementById('login-scr').classList.add('hidden'); document.getElementById('main-scr').classList.remove('hidden'); drillIdx = 0; activeDrills = [...DRILLS].sort(() => Math.random() - 0.5); activeDrills.push(WRITING_TASK); renderDrill(); if (typeof lucide !== 'undefined') lucide.createIcons(); }
+        
+        function renderDrill() { 
+            const list = document.getElementById('drill-list'); 
+            const d = activeDrills[drillIdx]; 
+            if(!d) { 
+                list.innerHTML = `<div class="p-12 text-center h-full flex flex-col justify-center items-center text-black"><i data-lucide="award" class="w-16 h-16 text-blue-600 mb-6"></i><h2 class="text-5xl font-black">TAHNIAH!</h2><button onclick="location.reload()" class="bg-blue-600 text-white p-6 rounded-2xl mt-10">KEMBALI</button></div>`; 
+                if (typeof lucide !== 'undefined') lucide.createIcons(); 
+                return; 
+            } 
+            if(d.type === 'writing') { 
+                list.innerHTML = `<div class="p-10 bg-white rounded-[40px] border-4 text-black"><p class="text-3xl font-bold mb-8">${d.q}</p><div class="h-40 bg-slate-50 flex items-center justify-center mb-6 rounded-2xl overflow-hidden border-2"><img src="${d.filename}" class="w-full h-full object-cover" onerror="this.outerHTML='<span class=\'italic text-slate-400\'>[${d.filename}]</span>'"></div><textarea id="writingIn" class="w-full bg-slate-50 p-8 rounded-3xl text-3xl mb-8 border-2" rows="4"></textarea><button onclick="submitFinal()" class="w-full bg-blue-600 text-white py-6 rounded-3xl font-bold text-2xl">HANTAR</button></div>`; 
+            } else { 
+                list.innerHTML = `<div class="bg-white rounded-[40px] overflow-hidden border-4 text-black"><div class="h-64 bg-slate-100 flex items-center justify-center overflow-hidden border-b-4 border-slate-200"><img src="${d.filename}" class="w-full h-full object-cover" onerror="this.outerHTML='<span class=\'italic text-slate-400\'>[${d.filename}]</span>'"></div><div class="p-10"><p class="text-3xl font-black mb-10">${d.q}</p>${d.options.map(o => `<button onclick="checkDrill(this, '${o}')" class="choice-card">${o}</button>`).join('')}</div></div>`; 
+            } 
+            if (typeof lucide !== 'undefined') lucide.createIcons(); 
+        }
+
+        async function checkDrill(btn, opt) { if(opt === activeDrills[drillIdx].ans) { btn.classList.add('correct'); await submitToGas(`[MISI ${drillIdx+1}] Lulus`); setTimeout(() => { drillIdx++; renderDrill(); }, 1000); } else { btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 400); } }
+        async function submitFinal() { const v = document.getElementById('writingIn').value.trim(); if(v.split(/\s+/).length < 5) return alert("Tulis ayat lengkap!"); await submitToGas(`[LAPORAN UTC] ${v}`); drillIdx++; renderDrill(); }
+        async function submitToGas(m) { if(!SCRIPT_URL) return; try { await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: JSON.stringify({ name: userData.name, message: m }) }); } catch(e) {} }
+        function showExplore() { document.getElementById('main-scr').classList.add('hidden'); document.getElementById('explore-scr').classList.remove('hidden'); loadFeed(); if(autoRefresh) clearInterval(autoRefresh); autoRefresh = setInterval(loadFeed, 2000); }
+        function closeExplore() { document.getElementById('explore-scr').classList.add('hidden'); document.getElementById('main-scr').classList.remove('hidden'); if(autoRefresh) { clearInterval(autoRefresh); autoRefresh = null; } }
+        
+        async function loadFeed() { 
+            const c = document.getElementById('explore-container'); 
+            if(!c || !SCRIPT_URL) return; 
+            try { 
+                const r = await fetch(SCRIPT_URL); 
+                const d = await r.json(); 
+                const posts = d.filter(x => x.message.includes('[LAPORAN UTC]')).reverse(); 
+                if(posts.length === 0) { c.innerHTML = '<p class="text-center text-slate-400 py-20 italic">Tiada rekod.</p>'; return; } 
+                c.innerHTML = posts.map(p => `<div class="bg-slate-50 p-8 rounded-[35px] border-2 mb-6"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center font-bold text-blue-600">${p.name[0]}</div><span class="font-bold text-xl">${p.name}</span></div><p class="text-slate-600 italic text-2xl">"${p.message.replace('[LAPORAN UTC] ','')}"</p></div>`).join(''); 
+            } catch(e) {} 
+        }
+
+        async function confirmReset() { const pwd = document.getElementById('resetPassword').value; if(pwd !== "21") return alert("Kod Salah!"); try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'reset', password: pwd }) }); document.getElementById('reset-modal').style.display='none'; document.getElementById('resetPassword').value = ""; alert("Reset Berjaya!"); loadFeed(); } catch(e) {} }
+        function checkCFU(btn, correct) { if(correct) { btn.classList.add('correct'); setTimeout(() => alert('TEPAT!'), 100); } else { btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 400); } }
+
+        document.addEventListener('keydown', (e) => { 
+            const key = e.key.toLowerCase();
+            const isTyping = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
+            if (key === 'f' && !isTyping) {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                else document.exitFullscreen();
+            }
+            if(!isTyping) { 
+                if(e.key === 'ArrowRight') nextSlide(); 
+                if(e.key === 'ArrowLeft') prevSlide(); 
+            } 
+        });
+
+        window.onload = () => { if (typeof lucide !== 'undefined') lucide.createIcons(); };
+    </script>
+</body>
+</html>
